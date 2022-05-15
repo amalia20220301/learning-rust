@@ -5,6 +5,7 @@
 */ 
 use std::fmt;
 use std::io::Write;
+use std::str::FromStr;
 use regex::Regex;
 struct BufBuilder{
     buf: Vec<u8>
@@ -36,28 +37,51 @@ impl Write for BufBuilder {
     }
 }
 
-pub trait Parse{
-    fn parse(s: &str)-> Self;
-}
+// pub trait Parse{
+//     fn parse(s: &str)-> Self;
+// }
 
-impl Parse for u8{
-    fn parse(s: &str)->Self{
-        let re: Regex = Regex::new(r"^[0-9]+").unwrap();
-        if let Some(captures) =re.captures(s){
-            captures.get(0).map_or(0,|s| s.as_str().parse().unwrap_or(0))
-        }else{
-            0
-        }
-    }
-}
+// impl Parse for u8{
+//     fn parse(s: &str)->Self{
+//         let re: Regex = Regex::new(r"^[0-9]+").unwrap();
+//         if let Some(captures) =re.captures(s){
+//             captures.get(0).map_or(0,|s| s.as_str().parse().unwrap_or(0))
+//         }else{
+//             0
+//         }
+//     }
+// }
 
-impl Parse for f32{
+// impl Parse for f32{
+//     fn parse(s: &str)->Self{
+//         let re: Regex = Regex::new(r"^[0-9]+\.[0-9]+").unwrap();
+//         if let Some(captures) =re.captures(s){
+//             captures.get(0).map_or(0.0,|s| s.as_str().parse().unwrap_or(0.0))
+//         }else{
+//             0.0
+//         }
+//     }
+// }
+
+pub trait Parse<T>{
+    fn parse(s: &str)->Self;
+}
+/*
+* 使用泛型T进行重构
+* T 必须可以被str::parse处理
+* str::parse是一个泛型函数，返回任何实现了FromStr trait的类型
+*/ 
+
+impl<T> Parse<T> for T 
+where
+T: FromStr + Default
+{
     fn parse(s: &str)->Self{
-        let re: Regex = Regex::new(r"^[0-9]+\.[0-9]+").unwrap();
+        let re: Regex = Regex::new(r"^[0-9]+(\.[0-9]+)?").unwrap();
         if let Some(captures) =re.captures(s){
-            captures.get(0).map_or(0.0,|s| s.as_str().parse().unwrap_or(0.0))
+            captures.get(0).map_or(Self::default(),|s| s.as_str().parse().unwrap_or(Self::default()))
         }else{
-            0.0
+            Self::default()
         }
     }
 }
