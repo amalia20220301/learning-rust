@@ -63,25 +63,48 @@ impl Write for BufBuilder {
 //     }
 // }
 
-pub trait Parse<T>{
-    fn parse(s: &str)->Self;
-}
+// pub trait Parse<T>{
+//     fn parse(s: &str)->Self;
+// }
 /*
-* 使用泛型T进行重构
+* 重构第一版： 使用泛型T进行重构
 * T 必须可以被str::parse处理
 * str::parse是一个泛型函数，返回任何实现了FromStr trait的类型
 */ 
 
+// impl<T> Parse<T> for T 
+// where
+// T: FromStr + Default
+// {
+//     fn parse(s: &str)->Self{
+//         let re: Regex = Regex::new(r"^[0-9]+(\.[0-9]+)?").unwrap();
+//         if let Some(captures) =re.captures(s){
+//             captures.get(0).map_or(Self::default(),|s| s.as_str().parse().unwrap_or(Self::default()))
+//         }else{
+//             Self::default()
+//         }
+//     }
+// }
+
+/*
+* 重构第二版： 对于解析出错还是解析成default值做更明确的划分
+**/ 
+pub trait Parse<T>{
+    type Error;
+    fn parse(s: &str)->Result<Self, Self::Error>
+    where Self: Sized;
+}
 impl<T> Parse<T> for T 
 where
 T: FromStr + Default
 {
-    fn parse(s: &str)->Self{
+    type Error = String;
+    fn parse(s: &str)->Result<T,Self::Error>{
         let re: Regex = Regex::new(r"^[0-9]+(\.[0-9]+)?").unwrap();
         if let Some(captures) =re.captures(s){
-            captures.get(0).map_or(Self::default(),|s| s.as_str().parse().unwrap_or(Self::default()))
+            captures.get(0).map_or(Err("failed to capture".to_string()),|s| s.as_str().parse().map_err(|_err|"failed to parse captured string".to_string()))
         }else{
-            Self::default()
+            Err("failed to parse string".to_string())
         }
     }
 }
@@ -94,7 +117,8 @@ mod tests {
         let mut buf_builder = BufBuilder::new();
         let result = buf_builder.write(&[1,2,3]);
         println!("test_buf_builder result {:?}", result);
-        assert_eq!(u8::parse("123hello"),123);
-        assert_eq!(f32::parse("123.35hello"),123.35);
+        assert_eq!(u8::parse("123hello"),Ok(123));
+        assert_eq!(f32::parse("123.35hello"),Ok(123.35));
+        assert_eq!(u8::parse("hello123.35"),Err("failed to parse string".into()));
     }
 }
