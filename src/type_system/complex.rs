@@ -26,6 +26,22 @@ imagine: f64,
 //     }
 // }
 
+
+impl Complex {
+    pub fn new(real: f64, imagine: f64)->Self{
+        Self { real, imagine }
+    }
+}
+
+impl Add for &Complex{
+    type Output = Complex;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let real = self.real + rhs.real;
+        let imagine = self.imagine + rhs.imagine;
+        Complex::new(real, imagine)
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -33,6 +49,6 @@ mod tests {
     fn test_complex() {
         let c1 = Complex::new(1.0, 1f64);
         let c2 = Complex::new(2 as f64, 3.0);
-        println!("Complex {:?}", c1 + c2);
+        println!("Complex {:?}", &c1 + &c2);
     }
 }
