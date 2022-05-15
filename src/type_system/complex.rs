@@ -33,15 +33,33 @@ impl Complex {
     }
 }
 
-impl Add for &Complex{
-    type Output = Complex;
+// impl Add for &Complex{
+//     type Output = Complex;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        let real = self.real + rhs.real;
-        let imagine = self.imagine + rhs.imagine;
-        Complex::new(real, imagine)
+//     fn add(self, rhs: Self) -> Self::Output {
+//         let real = self.real + rhs.real;
+//         let imagine = self.imagine + rhs.imagine;
+//         Complex::new(real, imagine)
+//     }
+// }
+
+/**
+ * Add 是一个支持泛型的trait，所以可以为Complex实现与不同类型的Add 操作
+pub trait Add<Rhs = Self> {
+    type Output;
+    #[must_use]
+    fn add(self, rhs: Rhs) -> Self::Output;
+}
+ * **/ 
+
+impl Add<f64> for Complex{
+    type Output = Complex;
+    fn add(self, rhs: f64) -> Self::Output{
+        let real = self.real+rhs;
+        Complex::new(real, self.imagine)
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -49,6 +67,7 @@ mod tests {
     fn test_complex() {
         let c1 = Complex::new(1.0, 1f64);
         let c2 = Complex::new(2 as f64, 3.0);
-        println!("Complex {:?}", &c1 + &c2);
+        // println!("Complex {:?}", &c1 + &c2);
+        println!("Complex {:?}", c1 + 5.0);
     }
 }
