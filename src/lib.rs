@@ -1,5 +1,6 @@
 mod type_system;
 mod ownership;
+mod borrow;
 
 #[cfg(test)]
 mod tests {

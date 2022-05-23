@@ -44,4 +44,6 @@ mod test {
         // println!("data1: {:?}", data1); // 报错， data1的所有权已经move到sum函数内部
         // println!("sum of data: {}", sum(data)); // 报错， data的所有权已经move到data1
     }
+
+
 }
