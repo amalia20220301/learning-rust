@@ -5,13 +5,13 @@ struct MyAllocator;
 unsafe impl GlobalAlloc for MyAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         let data = System.alloc(layout);
-        eprintln!("Alloc: {:p}, size {}", data, layout.size());
+        // eprintln!("Alloc: {:p}, size {}", data, layout.size());
         data
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
         System.dealloc(ptr, layout);
-        eprintln!("Free: {:p}, size {}", ptr, layout.size());
+        // eprintln!("Free: {:p}, size {}", ptr, layout.size());
     }
 }
 
@@ -38,6 +38,6 @@ mod test{
         // 传入Box::new的参数会首先出现在栈上，然后移动到堆上，如果用release模式进行build `cargo build --release`
         // 会进行inline优化。
         let data = Box::new(Matrix::default());
-        println!("allocated memory {:p}, len: {}", &*data, std::mem::size_of::<Matrix>());
+        // println!("allocated memory {:p}, len: {}", &*data, std::mem::size_of::<Matrix>());
     }
 }
