@@ -1,3 +1,5 @@
+extern crate core;
+
 mod type_system;
 mod ownership;
 mod borrow;
