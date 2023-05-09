@@ -1,20 +1,51 @@
 
+type Message=String;
+
+#[derive(Debug)]
+struct MailBox {
+    messages:  Vec<Message>
+}
+#[derive(Debug)]
+struct CubeSat {
+    id: u64,
+    mailbox: MailBox
+}
+
 #[derive(Debug)]
 pub enum StatusMessage{
     Ok
 }
-fn check_status(sat_id: u64)->StatusMessage{
-StatusMessage::Ok
+struct GroundStation;
+
+impl GroundStation {
+    pub fn send(&self, to: &mut CubeSat, msg: Message) {
+        to.mailbox.messages.push(msg)
+    }
+}
+
+impl CubeSat{
+    pub fn recv(&mut self) -> Option<Message> {
+        self.mailbox.messages.pop()
+    }
+}
+fn check_status(sat_id: CubeSat)->CubeSat{
+    println!("{:?} {:?}", sat_id, StatusMessage::Ok);
+    sat_id
 }
 pub fn pos(){
-    let sat_a=0;
-    let sat_b=1;
-    let sat_c=2;
-
-    let a_status = check_status(sat_a);
-    let b_status = check_status(sat_b);
-    let c_status = check_status(sat_c);
-    println!("a: {:?},b: {:?}, c:{:?}", a_status, b_status, c_status);
+    let base = GroundStation;
+    let mut sat_a=CubeSat{
+        id: 0,
+        mailbox: MailBox{
+            messages: vec![]
+        }
+    };
+    println!("t0 {:?}", sat_a);
+    base.send(&mut sat_a, Message::from("hello, there"));
+    println!("t1 {:?}", sat_a);
+    let msg = sat_a.recv();
+    println!("t1 {:?}", sat_a);
+    println!("message {:?}", msg);
 }
 
 #[cfg(test)]
