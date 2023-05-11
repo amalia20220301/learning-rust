@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 #[derive(Debug)]
 struct Message{
     to: u64,
@@ -33,19 +36,22 @@ struct CubeSat {
 pub enum StatusMessage{
     Ok
 }
-struct GroundStation;
-
-impl GroundStation {
-    pub fn send(&self, mailbox: &mut MailBox, msg: Message) {
-        mailbox.post(msg)
-    }
-    pub fn connect(&self, sat_id: u64)->CubeSat{
-        CubeSat {
-            id: sat_id,
-            mailbox: MailBox { messages: vec![]},
-        }
-    }
+#[derive(Debug)]
+struct GroundStation {
+    radio_freq: f64
 }
+
+// impl GroundStation {
+//     pub fn send(&self, mailbox: &mut MailBox, msg: Message) {
+//         mailbox.post(msg)
+//     }
+//     pub fn connect(&self, sat_id: u64)->CubeSat{
+//         CubeSat {
+//             id: sat_id,
+//             mailbox: MailBox { messages: vec![]},
+//         }
+//     }
+// }
 
 impl CubeSat{
     pub fn recv(&mut self,mailbox: &mut MailBox) -> Option<Message> {
@@ -72,21 +78,29 @@ pub fn pos(){
     let mut mail = MailBox {
         messages: vec![],
     };
-    let base = GroundStation;
-    let ids = fetch_sat_ids();
-    for id in ids{
-        let msg = Message {
-            to: id,
-            connect: String::from("hello"),
-        };
-        base.send(&mut mail, msg);
+    let base: Rc<RefCell<GroundStation>> = Rc::new(RefCell::new(GroundStation{
+        radio_freq: 87.65
+    }));
+    println!("base {:?}", base);
+    {
+        let mut base_2 = base.borrow_mut();
+        base_2.radio_freq -=12.34;
+        println!("base 2 {:?}", base_2);
     }
-    let ids = fetch_sat_ids();
-    for id in ids{
-        let mut sat = base.connect(id);
-        let msg = sat.recv(&mut mail);
-        println!("{:?} {:?}", sat, msg);
-    }
+    // let ids = fetch_sat_ids();
+    // for id in ids{
+    //     let msg = Message {
+    //         to: id,
+    //         connect: String::from("hello"),
+    //     };
+    //     base.send(&mut mail, msg);
+    // }
+    // let ids = fetch_sat_ids();
+    // for id in ids{
+    //     let mut sat = base.connect(id);
+    //     let msg = sat.recv(&mut mail);
+    //     println!("{:?} {:?}", sat, msg);
+    // }
 }
 
 #[cfg(test)]
